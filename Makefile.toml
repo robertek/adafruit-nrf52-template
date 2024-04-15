@@ -1,0 +1,53 @@
+[env]
+SERIAL_PORT="/dev/ttyACM0"
+APP_HEX="target/app.hex"
+DFU_PKG="target/dfu-package.zip"
+NRFUTIL="adafruit-nrfutil"
+NRFUTIL_PATH="./adafruit-nrfutil"
+
+
+[config]
+skip_core_tasks = true
+
+[tasks.build]
+command = "cargo"
+args = ["build", "--release"]
+
+# extract the hex file from ELF
+[tasks.objcopy]
+command = "cargo"
+args = ["objcopy", "--release", "--", "-O", "ihex", "${APP_HEX}"]
+dependencies = ["build"]
+
+# generate zip package for flashing
+[tasks.genpkg]
+command = "${NRFUTIL}"
+args = ["dfu", "genpkg", "--dev-type", "0x0052", "--application", "${APP_HEX}", "${DFU_PKG}"]
+dependencies = ["objcopy"]
+
+[tasks.default]
+alias = "genpkg"
+
+# upload the app to the device dualbank
+[tasks.upload-dual]
+command = "${NRFUTIL}"
+args = ["dfu", "serial", "--package", "${DFU_PKG}", "--port", "${SERIAL_PORT}"]
+
+# upload the app to the device singlebank
+[tasks.upload-single]
+command = "${NRFUTIL}"
+args = ["dfu", "serial", "--package", "${DFU_PKG}", "--port", "${SERIAL_PORT}", "--singlebank"]
+
+[tasks.upload]
+alias = "upload-dual"
+
+
+# adafruit-nrfutil installation
+[tasks.pyenv]
+command = "python3"
+args = ["-m", "venv", "${NRFUTIL_PATH}"]
+
+[tasks.nrfutil_install]
+command = "${NRFUTIL_PATH}/bin/pip"
+args = ["install", "adafruit-nrfutil"]
+dependencies = ["pyenv"]
