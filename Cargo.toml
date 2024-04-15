@@ -15,11 +15,15 @@ cortex-m = {version = "0.7.7", features = ["critical-section-single-core"]}
 cortex-m-rt = "0.7.3"
 panic-probe = "0.3.1"
 
+embassy-usb = "0.1.0"
+embassy-usb-logger = "0.1.0"
+log = "0.4"
 
 [patch.crates-io]
 embassy-time = { git = "https://github.com/embassy-rs/embassy"}
 embassy-executor = { git = "https://github.com/embassy-rs/embassy"}
 embassy-nrf = { git = "https://github.com/embassy-rs/embassy"}
+embassy-usb-logger = { git = "https://github.com/embassy-rs/embassy"}
 
 
 [profile.release]
